@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js vr - 360 stereo video</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+		<div id="container"></div>
+		
+		<video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
+			<source src="360_2.mp4">
+		</video>
+
+		<script type="module">
+
+			import * as THREE from './three.module.js';
+
+			let camera, scene, renderer;
+
+			const container = document.getElementById( 'container' );
+			container.addEventListener( 'click', function () {
+
+				video.play();
+
+			} );
+
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1100 );
+			camera.layers.enable( 1 );
+
+			const video = document.getElementById( 'video' );
+			video.play();
+
+			const texture = new THREE.VideoTexture( video );
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x101010 );
+
+			const geometry = new THREE.SphereGeometry(500, 60, 40);
+
+			geometry.scale(-1, 1, 1);
+
+			const material = new THREE.MeshBasicMaterial({ map: texture });
+
+			const mesh = new THREE.Mesh(geometry, material);
+
+			scene.add(mesh);
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+			container.appendChild( renderer.domElement );
+			
+			window.addEventListener("resize", () => {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			});
+
+			animate()
+
+			window.addEventListener("keydown", function (event) {
+			if (event.defaultPrevented) {
+				return; 
+			}
+
+			switch (event.key) {
+				case "ArrowDown":
+					mesh.rotation.x+=0.05
+				break;
+
+				case "ArrowUp":
+					mesh.rotation.x-=0.05
+				break;
+
+				case "ArrowLeft":
+					mesh.rotation.y-=0.05
+				break;
+
+				case "ArrowRight":
+					mesh.rotation.y+=0.05
+				break;
+
+				case "Enter":
+					mesh.rotation.z+=0.05
+				break;
+
+				case "Escape":
+					mesh.rotation.z-=0.05
+				break;
+
+				default:
+				return; 
+			}
+
+			event.preventDefault();
+			}, true);
+
+			function animate() {
+				requestAnimationFrame( animate );
+
+				renderer.render( scene, camera );
+			}
+
+		</script>
+	</body>
+</html>
